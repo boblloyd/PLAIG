@@ -22,7 +22,7 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	add := flag.bool("add", "", "Add task to the ToDo list")
+	add := flag.Bool("add", "", "Add task to the ToDo list")
 	list := flag.Bool("list", false, "List all tasks")
 	complete := flag.Int("complete", 0, "Item to be completed")
 
