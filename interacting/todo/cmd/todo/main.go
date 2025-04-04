@@ -8,7 +8,7 @@ import (
 	"interacting/todo"
 )
 
-const todoFileName = ".todo.json"
+var todoFileName = ".todo.json"
 
 func main() {
 	flag.Usage = func() {
@@ -25,6 +25,10 @@ func main() {
 
 	flag.Parse()
 
+	if os.Getenv("TODO_FILENAME") != "" {
+		todoFileName = os.Getenv("TODO_FILENAME")
+	}
+
 	l := &todo.List{}
 
 	if err := l.Get(todoFileName); err != nil {
@@ -34,11 +38,7 @@ func main() {
 
 	switch {
 		case *list:
-			for _, item := range *l {
-				if !item.Done {
-					fmt.Println(item.Task)
-				}
-			}
+			fmt.Print(l)
 		case *complete > 0:
 			if err := l.Complete(*complete); err != nil {
 				fmt.Fprintln(os.Stderr, err)
