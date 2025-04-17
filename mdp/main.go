@@ -72,6 +72,7 @@ func run(filename string, out io.Writer, skipPreview bool) error {
 		return nil
 	}
 
+	defer os.Remove(outName)
 	return preview(outName)
 }
 
