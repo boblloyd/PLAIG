@@ -13,7 +13,7 @@ jobs:
   firstProgram:
     uses: ./.github/workflows/go-build.yml
     with:
-      source-path: firstProgram
+      source-path: firstProgram/wc
   interacting-todo:
     uses: ./.github/workflows/go-build.yml
     with:
