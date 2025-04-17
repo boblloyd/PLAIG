@@ -23,4 +23,6 @@ jobs:
     with:
       source-path: interacting/todo/cmd/todo
   mpd:
-    uses: ./mdp/.github-workflow.yml
+    uses: ./.github/workflows/go-build.yml
+    with:
+      source-path: mdp
