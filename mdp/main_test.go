@@ -37,7 +37,7 @@ func TestParseContent(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	var mockStdOut bytes.Buffer
-	if err := run(inputFile, "", &mockStdOut, true); err != nil {
+	if err := run(inputFile, "", &mockStdOut, true, false); err != nil {
 		t.Fatal(err)
 	}
 	resultFile := strings.TrimSpace(mockStdOut.String())
@@ -61,7 +61,7 @@ func TestRun(t *testing.T) {
 
 func TestRunTemplate(t *testing.T) {
 	var mockStdOut bytes.Buffer
-	if err := run(inputFile, templateFile, &mockStdOut, true); err != nil {
+	if err := run(inputFile, templateFile, &mockStdOut, true, false); err != nil {
 		t.Fatal(err)
 	}
 	resultFile := strings.TrimSpace(mockStdOut.String())

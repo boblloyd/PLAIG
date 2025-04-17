@@ -40,12 +40,17 @@ type content struct {
 }
 
 func main() {
-	filename := flag.String("file", "", "Markdown file to preview")
+	filename := flag.String("file", "", "Markdown file to preview.  Do not use with -i")
 	skipPreview := flag.Bool("s", false, "Skip auto-previewing the file after conversion")
 	tFname := flag.String("t", "", "Alternate template name")
+	useStdin := flag.Bool("i", false, "Use standard in for input.  Do not use with -file")
 	flag.Parse()
 
-	if *filename == "" {
+	if *filename == "" && !*useStdin {
+		flag.Usage()
+		os.Exit(1)
+	}
+	if *filename != "" && *useStdin {
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -54,18 +59,26 @@ func main() {
 		*tFname = os.Getenv("MDP_TEMPLATE_FILENAME")
 	}
 
-	if err := run(*filename, *tFname, os.Stdout, *skipPreview); err != nil {
+	if err := run(*filename, *tFname, os.Stdout, *skipPreview, *useStdin); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(filename string, tFname string, out io.Writer, skipPreview bool) error {
-	input, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return err
+func run(filename string, tFname string, out io.Writer, skipPreview bool, useStdin bool) error {
+	var input []byte
+	var err error
+	if useStdin {
+		input, err = io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+	} else {
+		input, err = ioutil.ReadFile(filename)
+		if err != nil {
+			return err
+		}
 	}
-
 	htmlData, err := parseContent(input, tFname, filename)
 	if err != nil {
 		return err
