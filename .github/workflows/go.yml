@@ -10,6 +10,18 @@ on:
     branches: [ "main" ]
 
 jobs:
+  firstProgram:
+    uses: ./.github/workflows/go-build.yml
+    with:
+      source-path: firstProgram
+  interacting-todo:
+    uses: ./.github/workflows/go-build.yml
+    with:
+      source-path: interacting/todo
+  interacting-todo-cli:
+    uses: ./.github/workflows/go-build.yml
+    with:
+      source-path: interacting/todo/cmd/todo
   mpd:
     uses: ./.github/workflows/go-build.yml
     with:
