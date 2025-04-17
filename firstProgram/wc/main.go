@@ -6,15 +6,24 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func main() {
+	var list []string
 	lines := flag.Bool("l", false, "Count lines")
 	bytes := flag.Bool("b", false, "Count bytes")
-	file := flag.String("f", "", "File to read as input")
+	flag.Func("f", "Comma separated list of files to read as input", func(value string) error {
+		for _, str := range strings.Split(value, ",") {
+			if len(str) > 0 {
+				list = append(list, str)
+			}
+		}
+		return nil
+	})
 	flag.Parse()
 
-	i, err := run(*lines, *bytes, *file)
+	i, err := run(*lines, *bytes, list)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -22,15 +31,20 @@ func main() {
 	fmt.Println(i)
 }
 
-func run(lines bool, bytes bool, file string) (int, error) {
+func run(lines bool, bytes bool, files []string) (int, error) {
 	input := os.Stdin
-	if file != "" {
-		fileInput, err := os.Open(file)
-		if err != nil {
-			return 0, err
+	if len(files) > 0 {
+		counted := 0
+		for i := 0; i < len(files); i++ {
+			fileInput, err := os.Open(files[i])
+			if err != nil {
+				return 0, err
+			}
+			input = fileInput
+			defer fileInput.Close()
+			counted += count(input, lines, bytes)
 		}
-		input = fileInput
-		defer fileInput.Close()
+		return counted, nil
 	}
 	return count(input, lines, bytes), nil
 }
