@@ -1,29 +1,29 @@
 package main
 
-import {
+import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/russross/blackfriday/v2"
-}
+)
 
 const (
 	header = `<!DOCTYPE html>
 <html>
-	<head>
-		<meta http-equiv="content-type" content="text/html; charset=utf-8">
-		<title>Markdown Preview Tool</title>
-	</head>
-	<body>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>Markdown Preview Tool</title>
+    </head>
+    <body>
 `
 
 	footer = `
-	</body>
+    </body>
 </html>
 `
 )
@@ -33,37 +33,46 @@ func main() {
 	flag.Parse()
 
 	if *filename == "" {
-			flag.Usage()
-			os.Exit(1)
+		flag.Usage()
+		os.Exit(1)
 	}
 
-	if err := run(*filename); err != nil {
+	if err := run(*filename, os.Stdout); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
 }
 
-func run(filname string) error {
+func run(filename string, out io.Writer) error {
 	input, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return err
 	}
 
 	htmlData := parseContent(input)
-	outName := fmt.Sprintf("%s.html", filepath.Base(filename))
-	fmt.Println(outName)
+
+	temp, err := ioutil.TempFile("", "mdp*.html")
+	if err != nil {
+		return err
+	}
+	if err := temp.Close(); err != nil {
+		return err
+	}
+
+	outName := temp.Name()
+	fmt.Fprintln(out, outName)
 
 	return saveHTML(outName, htmlData)
 }
 
-func parseContent(input []byte)  []byte {
+func parseContent(input []byte) []byte {
 	output := blackfriday.Run(input)
-	body := bluemonday.UGCPolicy().SantizeBytes(output)
+	body := bluemonday.UGCPolicy().SanitizeBytes(output)
 
-	var buffer bytes.buffer
+	var buffer bytes.Buffer
 
 	buffer.WriteString(header)
-	buffer.WriteString(body)
+	buffer.Write(body)
 	buffer.WriteString(footer)
 
 	return buffer.Bytes()
