@@ -50,6 +50,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	if os.Getenv("MDP_TEMPLATE_FILENAME") != "" {
+		*tFname = os.Getenv("MDP_TEMPLATE_FILENAME")
+	}
+
 	if err := run(*filename, *tFname, os.Stdout, *skipPreview); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
