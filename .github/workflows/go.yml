@@ -26,3 +26,7 @@ jobs:
     uses: ./.github/workflows/go-build.yml
     with:
       source-path: mdp
+  walk:
+    uses: ./github/workflows/go-build.yml
+    with:
+      source-path: walk
